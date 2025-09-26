@@ -3,13 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>Codesync Frontend</title>
+  <script src="script.js" defer></script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <h1>Codesync Frontend</h1>
-  <button id="helloBtn">Get Hello from Backend</button>
-  <p id="output"></p>
 
-  <script src="script.js"></script>
+  <!-- Users -->
+  <h2>Users</h2>
+  <input type="text" id="usernameInput" placeholder="Enter username">
+  <button id="createUserBtn">Create User</button>
+  <button id="getUsersBtn">Get Users</button>
+  <pre id="usersOutput"></pre>
+
+  <!-- Rooms -->
+  <h2>Rooms</h2>
+  <input type="text" id="roomInput" placeholder="Enter room code">
+  <button id="createRoomBtn">Create Room</button>
+  <button id="getRoomsBtn">Get Rooms</button>
+  <pre id="roomsOutput"></pre>
+
+  <!-- Messages -->
+  <h2>Messages</h2>
+  <input type="text" id="messageText" placeholder="Enter message">
+  <input type="number" id="messageUserId" placeholder="User ID">
+  <input type="number" id="messageRoomId" placeholder="Room ID">
+  <button id="createMessageBtn">Send Message</button>
+  <button id="getMessagesBtn">Get Messages</button>
+  <pre id="messagesOutput"></pre>
+
+  <!-- Snapshots -->
+  <h2>Code Snapshots</h2>
+  <textarea id="snapshotCode" placeholder="Enter code here"></textarea>
+  <input type="number" id="snapshotRoomId" placeholder="Room ID">
+  <button id="createSnapshotBtn">Save Snapshot</button>
+  <button id="getSnapshotsBtn">Get Snapshots</button>
+  <pre id="snapshotsOutput"></pre>
 </body>
 </html>

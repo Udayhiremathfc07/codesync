@@ -1,9 +1,22 @@
-# Virtual environment
+@"
+# Python & env
 .venv/
-
-# Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
-# Environment variables
+# IDE
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Environment files
 .env
+
+# DB - *recommended* to ignore local sqlite (OPTIONAL)
+# backend/codesync.db
+
+"@ > .gitignore

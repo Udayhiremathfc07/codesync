@@ -15,7 +15,8 @@
 
   document.getElementById("roomName").innerText = room;
 
-  const socket = io("http://127.0.0.1:5000", {
+  // ----------------- Socket.IO CONNECTION FIX -----------------
+  const socket = io(window.location.origin, {
     transports: ["websocket", "polling"],
   });
 
@@ -38,7 +39,6 @@
       ul.appendChild(li);
     });
 
-    // remove ghost cursors
     const users = data.users || [];
     for (const u in cursorWidgets) {
       if (!users.includes(u)) {
@@ -51,12 +51,8 @@
   });
 
   // ---------------- Chat + typing
-  socket.on("status", (data) =>
-    addChatMessage("SYSTEM", data.msg, true)
-  );
-  socket.on("chat_message", (d) =>
-    addChatMessage(d.username, d.msg, false)
-  );
+  socket.on("status", (data) => addChatMessage("SYSTEM", data.msg, true));
+  socket.on("chat_message", (d) => addChatMessage(d.username, d.msg, false));
   socket.on("show_typing", (d) => {
     const el = document.getElementById("typingIndicator");
     el.innerText = `${d.username} is typing...`;
@@ -66,7 +62,7 @@
     }, 1500);
   });
 
-  // ---------------- Monaco
+  // ---------------- Monaco Editor
   window.MonacoEnvironment = {
     getWorkerUrl: function (_, label) {
       return `data:text/javascript;charset=utf-8,${encodeURIComponent(`
@@ -115,11 +111,9 @@
       socket.emit("cursor_move", { username, room, position: e.position });
     });
 
-    document
-      .getElementById("themeSwitcher")
-      .addEventListener("change", function () {
-        monaco.editor.setTheme(this.value);
-      });
+    document.getElementById("themeSwitcher").addEventListener("change", function () {
+      monaco.editor.setTheme(this.value);
+    });
   });
 
   socket.on("code_update", (d) => {
@@ -218,16 +212,8 @@
 
   function getColorForUser(u) {
     const colors = [
-      "#ffcc00",
-      "#00ccff",
-      "#ff66cc",
-      "#66ff66",
-      "#ff4444",
-      "#cc99ff",
-      "#ff9933",
-      "#3399ff",
-      "#99cc33",
-      "#ff6699",
+      "#ffcc00","#00ccff","#ff66cc","#66ff66","#ff4444",
+      "#cc99ff","#ff9933","#3399ff","#99cc33","#ff6699",
     ];
     let hash = 0;
     for (let i = 0; i < u.length; i++)
@@ -244,15 +230,13 @@
     input.value = "";
   });
 
-  document
-    .getElementById("chatInput")
-    .addEventListener("keypress", (e) => {
-      if (e.key === "Enter") document.getElementById("sendBtn").click();
-    });
+  document.getElementById("chatInput").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") document.getElementById("sendBtn").click();
+  });
 
   document.getElementById("saveBtn").addEventListener("click", async () => {
     const code = editor ? editor.getValue() : "";
-    const res = await fetch("http://127.0.0.1:5000/api/snapshots", {
+    const res = await fetch(`${window.location.origin}/api/snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code, room_id: room, username }),
@@ -277,17 +261,13 @@
     sessionStorage.removeItem("codesync_room");
   });
 
-  document
-    .getElementById("viewSnapshotsBtn")
-    .addEventListener("click", () => {
-      window.location.href = `snapshots.html?room=${encodeURIComponent(room)}`;
-    });
+  document.getElementById("viewSnapshotsBtn").addEventListener("click", () => {
+    window.location.href = `snapshots.html?room=${encodeURIComponent(room)}`;
+  });
 
-  document
-    .getElementById("language")
-    .addEventListener("change", function () {
-      if (editor) monaco.editor.setModelLanguage(editor.getModel(), this.value);
-    });
+  document.getElementById("language").addEventListener("change", function () {
+    if (editor) monaco.editor.setModelLanguage(editor.getModel(), this.value);
+  }); 
 
   // ---------------- Splitter Logic
   const dragY = document.getElementById("dragY");

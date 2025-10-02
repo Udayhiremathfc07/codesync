@@ -1,5 +1,5 @@
 import eventlet
-eventlet.monkey_patch() 
+eventlet.monkey_patch()
 
 import os
 from datetime import datetime
@@ -16,16 +16,16 @@ DB_PATH = os.path.join(BASE_DIR, "codesync.db")
 app = Flask(__name__, static_folder="frontend", static_url_path="")
 CORS(app)
 
-# Use DATABASE_URL if provided (PostgreSQL on Render) otherwise fallback to SQLite
+# Database URL (PostgreSQL on Render or fallback to SQLite)
 db_url = os.environ.get("DATABASE_URL") or f"sqlite:///{DB_PATH}"
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
-# SocketIO with eventlet for production
+# SocketIO with eventlet
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
-print("📂 Database will be stored at:", DB_PATH)
+print("📂 Database path:", DB_PATH)
 print("🔗 Using DB URL:", db_url)
 
 # ----------------- Models -----------------
@@ -44,13 +44,11 @@ rooms = {}    # rooms[room] = {"users": set(), "code": ""}
 clients = {}  # clients[sid] = {"username":..., "room":...}
 
 # ----------------- Routes -----------------
-# Serve frontend
 @app.route("/", defaults={"path": "index.html"})
 @app.route("/<path:path>")
 def serve_frontend(path):
     return send_from_directory("frontend", path)
 
-# API endpoints
 @app.route("/api/snapshots", methods=["POST"])
 def save_snapshot():
     data = request.json or {}
@@ -101,6 +99,7 @@ def handle_join(data):
     emit("status", {"msg": f"{username} joined {room}"}, room=room)
     emit("update_users", {"users": list(rooms[room]["users"])}, room=room)
 
+    # Send current code to the new user
     if rooms[room]["code"]:
         emit("code_update", {"code": rooms[room]["code"]}, room=sid)
 
@@ -113,10 +112,10 @@ def handle_leave(data):
 
     sid = request.sid
     leave_room(room)
+    clients.pop(sid, None)
+
     if room in rooms and username in rooms[room]["users"]:
         rooms[room]["users"].remove(username)
-
-    clients.pop(sid, None)
 
     emit("status", {"msg": f"{username} left {room}"}, room=room)
     emit("update_users", {"users": list(rooms.get(room, {"users": set()})["users"])}, room=room)
@@ -127,8 +126,10 @@ def handle_disconnect():
     info = clients.pop(sid, None)
     if not info:
         return
+
     username = info.get("username")
     room = info.get("room")
+
     if room in rooms and username in rooms[room]["users"]:
         rooms[room]["users"].remove(username)
 
@@ -150,12 +151,16 @@ def handle_chat_message(data):
     room = str(data.get("room"))
     username = data.get("username")
     msg = data.get("msg")
+    if not room or not username or not msg:
+        return
     emit("chat_message", {"username": username, "msg": msg}, room=room)
 
 @socketio.on("typing")
 def handle_typing(data):
     room = data.get("room")
     username = data.get("username")
+    if not room or not username:
+        return
     emit("show_typing", {"username": username}, room=room, include_self=False)
 
 @socketio.on("cursor_move")
@@ -200,9 +205,10 @@ def handle_file_upload(data):
     room = data.get("room")
     filename = data.get("filename")
     filedata = data.get("data")
+    if not room or not filename or not filedata:
+        return
 
-    # Safeguard: reject very large files
-    if len(filedata) > 2 * 1024 * 1024:  # ~2MB
+    if len(filedata) > 2 * 1024 * 1024:  # 2MB limit
         emit("chat_message", {"username": "SYSTEM", "msg": f"File {filename} too large."}, room=request.sid)
         return
 

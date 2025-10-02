@@ -3,36 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Snapshot Viewer - Codesync</title>
-  <link rel="stylesheet" href="styles.css">
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #1e1e1e; color: white; }
     h2 { color: #00ff99; }
-    .snapshot { 
-      border: 1px solid #555; 
-      border-radius: 8px; 
-      padding: 10px; 
-      margin-bottom: 12px; 
-      background: #2d2d2d; 
-    }
-    .snapshot pre {
-      background: #111; 
-      padding: 10px; 
-      border-radius: 6px; 
-      color: #00ff99;
-      overflow-x: auto;
-    }
-    button {
-      background: #00ff99;
-      color: black;
-      border: none;
-      padding: 5px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 5px;
-    }
-    button:hover {
-      background: #00cc77;
-    }
+    .snapshot { border: 1px solid #555; border-radius: 8px; padding: 10px; margin-bottom: 12px; background: #2d2d2d; }
+    .snapshot pre { background: #111; padding: 10px; border-radius: 6px; color: #00ff99; overflow-x:auto; }
+    button { background: #00ff99; color: black; border: none; padding: 5px 12px; border-radius: 5px; cursor: pointer; margin-top: 5px; }
+    button:hover { background: #00cc77; }
   </style>
 </head>
 <body>
@@ -45,16 +22,13 @@
     document.getElementById("room-name").innerText = room;
 
     async function loadSnapshots() {
-      const res = await fetch(`http://127.0.0.1:5000/api/snapshots/${room}`);
+      const res = await fetch(`${window.location.origin}/api/snapshots/${room}`);
       const data = await res.json();
 
       const container = document.getElementById("snapshots");
       container.innerHTML = "";
 
-      if (data.length === 0) {
-        container.innerHTML = "<p>No snapshots found.</p>";
-        return;
-      }
+      if (!data || data.length === 0) { container.innerHTML = "<p>No snapshots found.</p>"; return; }
 
       data.forEach(snap => {
         const div = document.createElement("div");
@@ -62,17 +36,16 @@
         div.innerHTML = `
           <p><strong>User:</strong> ${snap.username} <br>
              <strong>Time:</strong> ${snap.timestamp}</p>
-          <pre>${snap.code}</pre>
-          <button onclick="loadToEditor(\`${snap.code.replace(/`/g, "\\`")}\`)">Load in Editor</button>
+          <pre>${snap.code.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</pre>
+          <button onclick="loadToEditor(\`${snap.code.replace(/`/g,"\\`")}\`)">Load in Editor</button>
         `;
         container.appendChild(div);
       });
     }
 
     function loadToEditor(code) {
-      // Save selected code in localStorage so editor can load it
       localStorage.setItem("restore_code", code);
-      window.location.href = "editor.html?room=" + room;
+      window.location.href = `index.html?room=${room}`;
     }
 
     loadSnapshots();

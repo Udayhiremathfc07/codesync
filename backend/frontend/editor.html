@@ -1,104 +1,49 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Codesync Editor</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style>
-    body { margin:0; font-family: Arial, sans-serif; display:flex; height:100vh; overflow:hidden; }
-    #sidebar { width:220px; background:#1e1e1e; color:#fff; padding:10px; box-sizing:border-box; }
-    #sidebar h2 { margin:0 0 10px 0; font-size:16px; }
-    #usersList { list-style:none; padding:0; margin:0; }
-    #usersList li { padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+  <meta charset="UTF-8">
+  <title>Codesync Frontend</title>
 
-    #main { flex:1; display:flex; min-width:0; }
-    #workArea { flex:1; display:flex; flex-direction:column; min-width:0; }
+  <!-- ✅ Load Socket.IO client before your script -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
-    #toolbar { padding:8px; background:#f4f4f4; display:flex; gap:8px; align-items:center; }
-    #editor { flex:1; min-height:100px; }
-    #output { height:150px; min-height:80px; max-height:60%; overflow:auto;
-              padding:10px; background:#222; color:#0f0; font-family:monospace; }
+  <!-- Your frontend logic -->
+  <script src="script.js" defer></script>
 
-    #chat { width:300px; min-width:200px; max-width:600px; border-left:1px solid #ddd;
-            display:flex; flex-direction:column; }
-    #chat .messages { flex:1; padding:10px; overflow:auto; font-family:monospace; }
-    #chat input { box-sizing:border-box; padding:8px; width:calc(100% - 80px); }
-    #chat .sendBox { display:flex; gap:6px; padding:8px; }
-
-    /* Splitters */
-    #dragX { width:5px; cursor:col-resize; background:#ccc; }
-    #dragY { height:5px; cursor:row-resize; background:#ccc; }
-
-    /* Chat styling */
-    .chat-message { display:flex; align-items:flex-start; margin-bottom:6px; }
-    .chat-avatar {
-      width:24px; height:24px; border-radius:50%; color:white; 
-      display:flex; align-items:center; justify-content:center;
-      font-size:0.8em; margin-right:6px; flex-shrink:0;
-    }
-    .chat-content { flex:1; }
-    .chat-user .username { font-weight:bold; }
-    .chat-system { color:#0078d4; font-weight:bold; }
-    .timestamp { color:gray; font-size:0.75em; margin-right:4px; }
-  </style>
-
-  <!-- Monaco loader -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js" defer></script>
-  <!-- Socket.IO client -->
-  <script src="https://cdn.socket.io/4.7.2/socket.io.js"></script>
-  <!-- Editor logic -->
-  <script src="editor.js" defer></script>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="sidebar">
-    <h2>👥 Active Users</h2>
-    <ul id="usersList"></ul>
-    <hr>
-    <div><strong>Room:</strong> <span id="roomName"></span></div>
-  </div>
+  <h1>Codesync Frontend</h1>
 
-  <div id="main">
-    <div id="workArea">
-      <div id="toolbar">
-        <button id="saveBtn">💾 Save Snapshot</button>
-        <button id="viewSnapshotsBtn">📜 View Snapshots</button>
-        <button id="runBtn">▶ Run Code</button>
-        <button id="leaveBtn">🚪 Leave Room</button>
+  <!-- Users -->
+  <h2>Users</h2>
+  <input type="text" id="usernameInput" placeholder="Enter username">
+  <button id="createUserBtn">Create User</button>
+  <button id="getUsersBtn">Get Users</button>
+  <pre id="usersOutput"></pre>
 
-        <select id="language">
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
-          <option value="cpp">C++</option>
-          <option value="c">C</option>
-          <option value="java">Java</option>
-        </select>
+  <!-- Rooms -->
+  <h2>Rooms</h2>
+  <input type="text" id="roomInput" placeholder="Enter room code">
+  <button id="createRoomBtn">Create Room</button>
+  <button id="getRoomsBtn">Get Rooms</button>
+  <pre id="roomsOutput"></pre>
 
-        <select id="themeSwitcher">
-          <option value="vs-dark">Dark</option>
-          <option value="vs-light">Light</option>
-        </select>
+  <!-- Messages -->
+  <h2>Messages</h2>
+  <input type="text" id="messageText" placeholder="Enter message">
+  <input type="number" id="messageUserId" placeholder="User ID">
+  <input type="number" id="messageRoomId" placeholder="Room ID">
+  <button id="createMessageBtn">Send Message</button>
+  <button id="getMessagesBtn">Get Messages</button>
+  <pre id="messagesOutput"></pre>
 
-        <div style="margin-left:auto">
-          <small id="statusText">Not connected</small>
-        </div>
-      </div>
-
-      <div id="editor"></div>
-      <div id="dragY"></div>
-      <pre id="output">Output will appear here...</pre>
-    </div>
-
-    <div id="dragX"></div>
-
-    <div id="chat">
-      <div id="typingIndicator" style="color: orange; font-size: 12px; margin: 4px 0; padding:5px;"></div>
-      <div style="padding:10px;"><strong>Chat</strong></div>
-      <div class="messages" id="chatMessages"></div>
-      <div class="sendBox">
-        <input id="chatInput" placeholder="Type message..." />
-        <button id="sendBtn">Send</button>
-      </div>
-    </div>
-  </div>
+  <!-- Snapshots -->
+  <h2>Code Snapshots</h2>
+  <textarea id="snapshotCode" placeholder="Enter code here"></textarea>
+  <input type="number" id="snapshotRoomId" placeholder="Room ID">
+  <button id="createSnapshotBtn">Save Snapshot</button>
+  <button id="getSnapshotsBtn">Get Snapshots</button>
+  <pre id="snapshotsOutput"></pre>
 </body>
 </html>

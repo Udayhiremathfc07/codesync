@@ -27,9 +27,7 @@ A real-time collaborative code editor built with Python, Flask, and Socket.IO �
 
 ## 🚀 Live Demo
 
-> Replace these with your actual deployed URLs:
-
-- 🔗 CodeSync: [https://codesync-9maa.onrender.com/](#)
+- 🔗 CodeSync: [https://codesync-xave.onrender.com/](#)
 
 ---
 
@@ -44,11 +42,9 @@ A real-time collaborative code editor built with Python, Flask, and Socket.IO �
 | Realtime       | WebSockets via Socket.IO            |
 | Execution API  | Piston API                          |
 | Database       | SQLite / PostgreSQL                 |
-| Deployment     | Render (Backend), Netlify (Frontend)|
+| Deployment     | Render                              |
 
 ---
-
-## ⚙️ Installation & Setup
 
 ### 1. Clone the Repository
 
